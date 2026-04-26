@@ -22,11 +22,23 @@ def print_sterm(local_dt: datetime, matched_utc: datetime,
     print(SEP2)
 
 
+# 8방위 화살표. 각도가 가리키는 쪽(바람이 부는 곳)을 향한다.
+# 0°=북, 90°=동, 180°=남, 270°=서.
+_ARROWS = ["↑", "↗", "→", "↘", "↓", "↙", "←", "↖"]
+
+
+def _arrow(direction):
+    if direction is None:
+        return "·"
+    idx = int((direction + 22.5) // 45) % 8
+    return _ARROWS[idx]
+
+
 def _wind_line(label: str, direction, speed):
     if direction is None:
         print(f"  {label}: —")
     else:
-        print(f"  {label}: {direction:>3}° / {speed} m/s")
+        print(f"  {label}: {_arrow(direction)}  {direction:>3}° / {speed} m/s")
 
 
 # ──────────────────────────────────────────────
@@ -63,7 +75,7 @@ def print_lterm_block(day_offset: int, target_kst: datetime, matched_utc: dateti
         print(f"  Cu base    : — (적운 없음)")
     print(f"  W*         : {result.w_star} m/s")
     print(f"  Hcrit      : {result.h_crit} m AGL")
-    print(f"  BL wind    : {result.bl_wind_dir}° / {result.bl_wind_speed} m/s")
+    print(f"  BL wind    : {_arrow(result.bl_wind_dir)}  {result.bl_wind_dir}° / {result.bl_wind_speed} m/s")
     print(f"  Shear      : {result.shear} (1/s)")
 
 

@@ -262,5 +262,6 @@ def start(cfg: Config):
     t_short = threading.Thread(target=short_term_worker, args=(cfg,), daemon=True, name="sterm")
     t_long  = threading.Thread(target=long_term_worker,  args=(cfg,), daemon=True, name="lterm")
     t_short.start()
+    time.sleep(5)  # 단기 출력이 먼저 자리 잡도록 5초 지연 후 장기 시작
     t_long.start()
     return t_short, t_long
