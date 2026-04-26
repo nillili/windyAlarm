@@ -155,33 +155,30 @@ def short_term_worker(cfg: Config):
 # ──────────────────────────────────────────────
 
 def long_term_worker(cfg: Config):
-    last_run_date = None
-
     while True:
         try:
             now_kst = datetime.now(KST)
-            today = now_kst.date()
 
-            if now_kst.hour >= LTERM_TRIGGER_HOUR and last_run_date != today:
-                _run_long_term(cfg, now_kst)
-                last_run_date = today
+            day_offsets = list(range(1, 7))             # +1 ~ +6은 항상
+            if now_kst.hour < LTERM_TRIGGER_HOUR:
+                day_offsets = [0] + day_offsets         # 13시 전이면 오늘도 포함
 
+            _run_long_term(cfg, now_kst, day_offsets)
         except Exception as e:
             print(f"[장기 오류] {e}")
 
         time.sleep(cfg.lterm * 60)
 
 
-def _run_long_term(cfg: Config, now_kst: datetime):
+def _run_long_term(cfg: Config, now_kst: datetime, day_offsets: list):
     forecast = fetch_forecast(cfg.lat, cfg.lon, cfg.model)
     sfc_h = _surface_height(forecast.data)
 
     reporter.print_lterm_header(cfg.lat, cfg.lon, now_kst)
 
-    # 오늘 13시 이후이므로 오늘은 스킵, 내일(+1)부터 +6까지
     today_kst = now_kst.replace(hour=0, minute=0, second=0, microsecond=0)
 
-    for day_offset in range(1, 7):
+    for day_offset in day_offsets:
         target_kst = today_kst + timedelta(days=day_offset, hours=13)
         target_utc = target_kst.astimezone(UTC)
         target_ms = int(target_utc.timestamp() * 1000)
@@ -191,7 +188,8 @@ def _run_long_term(cfg: Config, now_kst: datetime):
 
         profile = _build_profile(forecast.data, idx, sfc_h)
         if not profile.temps:
-            print(f"  [+{day_offset}일] 데이터 부족으로 건너뜀")
+            label = "오늘" if day_offset == 0 else f"+{day_offset}일"
+            print(f"  [{label}] 데이터 부족으로 건너뜀")
             continue
 
         # 지표 기온을 하루 최댓값으로 대체 (대류 최성기 기준)

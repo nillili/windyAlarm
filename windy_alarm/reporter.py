@@ -55,7 +55,8 @@ def print_lterm_header(lat: float, lon: float, now_kst: datetime):
 def print_lterm_block(day_offset: int, target_kst: datetime, matched_utc: datetime,
                       raw: dict, result: SoarResult):
     matched_str = matched_utc.strftime("%H:%M UTC")
-    print(f"\n[+{day_offset}일] {target_kst.strftime('%Y-%m-%d')} 13:00 KST  (GFS: {matched_str})")
+    label = "[오늘]" if day_offset == 0 else f"[+{day_offset}일]"
+    print(f"\n{label} {target_kst.strftime('%Y-%m-%d')} 13:00 KST  (GFS: {matched_str})")
 
     print("  ── API 값 ──────────────────────────")
     print(f"  지표 기온  : {raw['sfc_temp_c']} °C")
