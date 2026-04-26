@@ -5,7 +5,7 @@ from datetime import datetime, timedelta, timezone
 from zoneinfo import ZoneInfo
 
 from .config import Config
-from .windy_client import fetch_forecast, find_time_index, LEVELS as LEVEL_ORDER
+from .weather_client import fetch_forecast, find_time_index, LEVELS as LEVEL_ORDER
 from .solar import estimate_qs
 from .soarcalc import compute, AtmProfile
 from . import reporter
@@ -127,7 +127,7 @@ def short_term_worker(cfg: Config):
             now_utc = datetime.now(UTC)
             now_utc_ms = int(now_utc.timestamp() * 1000)
 
-            forecast = fetch_forecast(cfg.lat, cfg.lon, cfg.api_key)
+            forecast = fetch_forecast(cfg.lat, cfg.lon, cfg.model)
             idx = find_time_index(forecast.timestamps, now_utc_ms)
             matched_utc = datetime.fromtimestamp(forecast.timestamps[idx] / 1000, tz=UTC)
 
@@ -173,7 +173,7 @@ def long_term_worker(cfg: Config):
 
 
 def _run_long_term(cfg: Config, now_kst: datetime):
-    forecast = fetch_forecast(cfg.lat, cfg.lon, cfg.api_key)
+    forecast = fetch_forecast(cfg.lat, cfg.lon, cfg.model)
     sfc_h = _surface_height(forecast.data)
 
     reporter.print_lterm_header(cfg.lat, cfg.lon, now_kst)

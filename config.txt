@@ -1,7 +1,9 @@
 # windyAlarm 설정
 # lat=위도, 경도
+# model=gfs 또는 ecmwf  (Open-Meteo가 제공하는 모델)
 # sterm=N  : 단기 스레드 실행 주기 (분) - 지표/900h 풍향풍속
 # lterm=N  : 장기 스레드 폴링 주기 (분) - 7일 전체 예보, 13시 이후 하루 1회
 lat=35.691, 128.393
+model=gfs
 sterm=10
 lterm=60
